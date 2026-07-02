@@ -27,8 +27,31 @@ services:
       - DB_NAME=${DB_NAME}
       - DB_PORT=5432
       - DB_HOST=postgres-db
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ${JUDGE_DATA_DIR}:/data
     depends_on:
       postgres-db:
         condition: service_healthy
+  
+  c-judger:
+    build: ./images/c
+    image: c-judger
+    profiles: ["build-only"]
+
+  cpp-judger:
+    build: ./images/cpp
+    image: cpp-judger
+    profiles: ["build-only"]
+
+  python-judger:
+    build: ./images/python
+    image: python-judger
+    profiles: ["build-only"]
+
+  java-judger:
+    build: ./images/java
+    image: java-judger
+    profiles: ["build-only"]
 volumes:
   pgdata:
