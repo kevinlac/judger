@@ -2,10 +2,12 @@ package db
 
 import (
 	"database/sql"
+	"errors"
 
-	"github.com/google/uuid"
 	_ "github.com/lib/pq"
 )
+
+var ErrNotFound = errors.New("No matching row was found when querying the DB.")
 
 type Store struct {
 	db *sql.DB
@@ -26,18 +28,14 @@ func Connect(databaseUrl string) (*sql.DB, error) {
     return db, nil
 }
 
-func (s *Store) InsertProblem(id string, timeLimit int, memoryLimit int, problemType string) error {
-	query := `
-	INSERT INTO problems (id, time_limit_ms, memory_limit_mb, problem_type)
-	VALUES ($1, $2, $3, $4);`
-	_, err := s.db.Exec(query, id, timeLimit, memoryLimit, problemType)
-	return err
-}
-
-func (s *Store) InsertSubmission(id uuid.UUID, problemID string, lang string) error {
-	query := `
-	INSERT INTO submissions (id, problem_id, lang, processing_status)
-	VALUES ($1, $2, $3, 'queued');`
-	_, err := s.db.Exec(query, id, problemID, lang)
-	return err
+// turns a zero-row-affected update/delete result into ErrNotFound
+func rowsAffectedOrNotFound(res sql.Result) error {
+	n, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if n == 0 {
+		return ErrNotFound
+	}
+	return nil
 }

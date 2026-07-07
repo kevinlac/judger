@@ -1,1 +1,6 @@
 .env
+solution
+data/problems/*
+data/submissions/*
+!data/problems/.gitkeep
+!data/submissions/.gitkeep
