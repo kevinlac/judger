@@ -34,6 +34,24 @@ services:
       postgres-db:
         condition: service_healthy
   
+  syncer:
+    build: ./worker
+    container_name: worker-syncer
+    profiles: ["tools"]
+    command: ["/app/syncer"]
+    environment:
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - DB_PORT=5432
+      - DB_HOST=postgres-db
+      - DATA_DIR=/data
+    volumes:
+      - ${JUDGE_DATA_DIR}:/data
+    depends_on:
+      postgres-db:
+        condition: service_healthy
+  
   c-judger:
     build: ./images/c
     image: c-judger

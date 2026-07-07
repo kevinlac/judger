@@ -24,6 +24,19 @@ func (s *Store) InsertProblem(id string, timeLimit int, memoryLimit int, problem
 	return err
 }
 
+// insert or update if exists already
+func (s *Store) UpsertProblem(ctx context.Context, id string, timeLimit int, memoryLimit int, problemType string) error {
+    query := `
+    INSERT INTO problems (id, time_limit_ms, memory_limit_mb, problem_type)
+    VALUES ($1, $2, $3, $4)
+    ON CONFLICT (id) DO UPDATE SET
+        time_limit_ms = EXCLUDED.time_limit_ms,
+        memory_limit_mb = EXCLUDED.memory_limit_mb,
+        problem_type = EXCLUDED.problem_type;`
+    _, err := s.db.ExecContext(ctx, query, id, timeLimit, memoryLimit, problemType)
+    return err
+}
+
 // fetches a single problem by id
 func (s *Store) GetProblem(ctx context.Context, id string) (*Problem, error) {
 	query := `

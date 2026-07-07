@@ -46,6 +46,24 @@ func (s *Store) InsertSubmission(id uuid.UUID, problemID string, lang string) er
 	return err
 }
 
+// inserts a submission with status queued if no
+// row with that id exists yet, and is a no-op otherwise.
+func (s *Store) InsertSubmissionIfAbsent(ctx context.Context, id uuid.UUID, problemID string, lang string) (bool, error) {
+    query := `
+    INSERT INTO submissions (id, problem_id, lang, processing_status)
+    VALUES ($1, $2, $3, 'queued')
+    ON CONFLICT (id) DO NOTHING;`
+    res, err := s.db.ExecContext(ctx, query, id, problemID, lang)
+    if err != nil {
+        return false, err
+    }
+    n, err := res.RowsAffected()
+    if err != nil {
+        return false, err
+    }
+    return n > 0, nil
+}
+
 // fetches a single submission by id
 func (s *Store) GetSubmission(ctx context.Context, id uuid.UUID) (*Submission, error) {
 	query := `
