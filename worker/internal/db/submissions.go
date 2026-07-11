@@ -90,6 +90,44 @@ func (s *Store) GetSubmission(ctx context.Context, id uuid.UUID) (*Submission, e
 	return &sub, nil
 }
 
+// ListSubmissionsByProblem returns all submissions for a given problem,
+// most recent first.
+func (s *Store) ListSubmissionsByProblem(ctx context.Context, problemID string) ([]Submission, error) {
+	query := `
+    SELECT id, problem_id, lang, processing_status, verdict, submitted_at, judged_at
+    FROM submissions
+    WHERE problem_id = $1
+    ORDER BY submitted_at DESC;`
+ 
+	rows, err := s.db.QueryContext(ctx, query, problemID)
+	if err != nil {
+		return nil, fmt.Errorf("list submissions for problem %s: %w", problemID, err)
+	}
+	defer rows.Close()
+ 
+	var subs []Submission
+	for rows.Next() {
+		var sub Submission
+		if err := rows.Scan(
+			&sub.ID,
+			&sub.ProblemID,
+			&sub.Lang,
+			&sub.ProcessingStatus,
+			&sub.Verdict,
+			&sub.SubmittedAt,
+			&sub.JudgedAt,
+		); err != nil {
+			return nil, fmt.Errorf("scan submission: %w", err)
+		}
+		subs = append(subs, sub)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("list submissions for problem %s: %w", problemID, err)
+	}
+	return subs, nil
+}
+
+
 // update a submission's processing_status (e.g. queued -> running)
 func (s *Store) UpdateSubmissionStatus(ctx context.Context, id uuid.UUID, status string) error {
 	query := `

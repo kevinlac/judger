@@ -8,6 +8,18 @@ import (
 	"time"
 )
 
+const (
+	ProbC = "C"
+	ProbCPP = "C++"
+	ProbPython = "Python"
+	ProbJava = "Java"
+)
+
+const (
+	ProbTypeStandard = "standard"
+	ProbTypeCustom = "custom"
+)
+
 type Problem struct {
 	ID            string
 	TimeLimitMs   int

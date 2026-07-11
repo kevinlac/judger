@@ -12,6 +12,7 @@ type Config struct {
     DBName string
     DBHost string
     DBPort string
+    JudgeDataDir  string
 }
 
 func Load() Config {
@@ -21,6 +22,7 @@ func Load() Config {
         DBName: mustEnv("DB_NAME"),
         DBHost: envOrDefault("DB_HOST", "localhost"),
         DBPort: envOrDefault("DB_PORT", "5432"),
+        JudgeDataDir: mustEnv("JUDGE_DATA_DIR"),
     }
 }
 

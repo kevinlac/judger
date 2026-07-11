@@ -27,9 +27,10 @@ services:
       - DB_NAME=${DB_NAME}
       - DB_PORT=5432
       - DB_HOST=postgres-db
+      - JUDGE_DATA_DIR=${JUDGE_DATA_DIR} # for compiling with docker on host machine
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - ${JUDGE_DATA_DIR}:/data
+      - ${JUDGE_DATA_DIR}:/data # read in and out files
     depends_on:
       postgres-db:
         condition: service_healthy
