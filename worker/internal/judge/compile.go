@@ -44,6 +44,8 @@ func Compile(ctx context.Context, cfg config.Config, sub db.Submission) error {
 	}
 
 	myMount := sandbox.Mount{
+		// since we are running stuff on host machine's docker socket
+		// we mount from our original path in .env
 		HostPath: fsdata.SubmissionDir(cfg.JudgeDataDir, sub.ID),
 		Target: "/app",
 		ReadOnly: false,
