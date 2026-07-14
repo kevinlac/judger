@@ -35,19 +35,7 @@ PROBLEMS = [
 
 # (problem_id, lang, filename, source)
 SUBMISSIONS = [
-    (
-        "sum-two-numbers",
-        "C++",
-        "main.cpp",
-        "#include <bits/stdc++.h>\n"
-        "using namespace std\n;"
-        "int main() {\n"
-        "    int a, b;\n"
-        "    cin >> a >> b;\n"
-        "    cout << a + b << endl;\n"
-        "    return 0;\n"
-        "}\n",
-    ),
+    # --- AC: correct C++ solution ---
     (
         "sum-two-numbers",
         "C++",
@@ -55,12 +43,121 @@ SUBMISSIONS = [
         "#include <bits/stdc++.h>\n"
         "using namespace std;\n"
         "int main() {\n"
-        "    int a, b\n"          # <- missing semicolon here
+        "    int a, b;\n"
         "    cin >> a >> b;\n"
         "    cout << a + b << endl;\n"
         "    return 0;\n"
         "}\n",
-    )
+    ),
+
+    # --- CE: missing semicolon, should fail to compile ---
+    (
+        "sum-two-numbers",
+        "C++",
+        "main.cpp",
+        "#include <bits/stdc++.h>\n"
+        "using namespace std;\n"
+        "int main() {\n"
+        "    int a, b\n" # <- missing semicolon here
+        "    cin >> a >> b;\n"
+        "    cout << a + b << endl;\n"
+        "    return 0;\n"
+        "}\n",
+    ),
+
+    # --- AC: correct C solution ---
+    (
+        "sum-two-numbers",
+        "C",
+        "main.c",
+        "#include <stdio.h>\n"
+        "int main() {\n"
+        "    int a, b;\n"
+        "    scanf(\"%d %d\", &a, &b);\n"
+        "    printf(\"%d\\n\", a + b);\n"
+        "    return 0;\n"
+        "}\n",
+    ),
+
+    # --- AC: correct Python solution ---
+    (
+        "sum-two-numbers",
+        "Python",
+        "solution.py",
+        "a, b = map(int, input().split())\n"
+        "print(a + b)\n",
+    ),
+
+    # --- AC: correct Java solution (must be Main.java / class Main) ---
+    (
+        "sum-two-numbers",
+        "Java",
+        "Main.java",
+        "import java.util.Scanner;\n"
+        "public class Main {\n"
+        "    public static void main(String[] args) {\n"
+        "        Scanner sc = new Scanner(System.in);\n"
+        "        int a = sc.nextInt();\n"
+        "        int b = sc.nextInt();\n"
+        "        System.out.println(a + b);\n"
+        "    }\n"
+        "}\n",
+    ),
+
+    # --- WA: compiles and runs fine, but produces the wrong answer (subtracts instead of adds) ---
+    (
+        "sum-two-numbers",
+        "C++",
+        "main.cpp",
+        "#include <bits/stdc++.h>\n"
+        "using namespace std;\n"
+        "int main() {\n"
+        "    int a, b;\n"
+        "    cin >> a >> b;\n"
+        "    cout << a - b << endl;\n"
+        "    return 0;\n"
+        "}\n",
+    ),
+
+    # --- RTE: out-of-bounds vector access ---
+    (
+        "sum-two-numbers",
+        "C++",
+        "main.cpp",
+        "#include <bits/stdc++.h>\n"
+        "using namespace std;\n"
+        "int main() {\n"
+        "    vector<int> x;\n"
+        "    cout << x[100];\n"
+        "}\n",
+    ),
+
+    # --- TLE: infinite loop ---
+    (
+        "sum-two-numbers",
+        "C++",
+        "main.cpp",
+        "#include <bits/stdc++.h>\n"
+        "using namespace std;\n"
+        "int main() {\n"
+        "    while (1) {\n"
+        "        // nothing\n"
+        "    }\n"
+        "}\n",
+    ),
+
+    # --- MLE: allocates a huge 50000x50000 int grid ---
+    (
+        "sum-two-numbers",
+        "C++",
+        "main.cpp",
+        "#include <bits/stdc++.h>\n"
+        "using namespace std;\n"
+        "int main() {\n"
+        "    vector<vector<int>> grid(50000, vector<int>(50000));\n"
+        "    cout << grid[0][0];\n"
+        "}\n",
+    ),
 ]
 
 

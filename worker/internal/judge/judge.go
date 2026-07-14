@@ -32,6 +32,7 @@ func JudgeSubmission(ctx context.Context, store *db.Store, cfg config.Config, su
         return fmt.Errorf("compile infra error: %w", infraErr)
     }
     if compileErr != nil {
+        fmt.Printf("compile error: %w\n", compileErr)
         return store.SetSubmissionVerdict(ctx, submissionID, db.VerdictCE)
     }
 
