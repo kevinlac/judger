@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"os/exec"
 	"time"
 	"worker/internal/config"
 	"worker/internal/db"
@@ -13,7 +14,7 @@ import (
 
 var ErrCompileTimeout = errors.New("Could not compile within allocated time")
 
-func Compile(ctx context.Context, cfg config.Config, sub db.Submission) error {
+func compile(ctx context.Context, cfg config.Config, sub db.Submission) (compileErr error, infraErr error) {
 	fmt.Printf("Compiling submission for %s with ID %s\n", sub.ProblemID, sub.ID)
     compileCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
     defer cancel()
@@ -23,24 +24,24 @@ func Compile(ctx context.Context, cfg config.Config, sub db.Submission) error {
 	// switch the image based on submission lang
 	filename, err := fsdata.SourceFilename(sub.Lang)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	switch sub.Lang {
-	case db.ProbC:
+	case db.LangC:
 		submissionImage = "c-judger"
 		compileArgs = []string{"gcc", "-o", "main", filename}
-	case db.ProbCPP:
+	case db.LangCPP:
 		submissionImage = "cpp-judger"
 		compileArgs = []string{"g++", "-o", "main", filename}
-	case db.ProbJava:
+	case db.LangJava:
 		submissionImage = "java-judger"
 		compileArgs = []string{"javac", filename}
-	case db.ProbPython:
-		return nil // no need to compile
+	case db.LangPython:
+		return nil, nil // no need to compile
 	}
 
 	if (submissionImage == "") {
-		return fmt.Errorf("submission struct language is not recognized")
+		return nil, fmt.Errorf("submission struct language is not recognized")
 	}
 
 	myMount := sandbox.Mount{
@@ -60,12 +61,18 @@ func Compile(ctx context.Context, cfg config.Config, sub db.Submission) error {
 		Args: compileArgs,
 	}
 
-    _, _, err = sandbox.RunOnce(compileCtx, options)
-	if err != nil {
-		return err
-	}
+	_, stderr, err := sandbox.RunOnce(compileCtx, options)
     if errors.Is(compileCtx.Err(), context.DeadlineExceeded) {
-        return ErrCompileTimeout
+        return nil, ErrCompileTimeout // compiling taking too long is the user's fault
     }
-	return nil
+    if err != nil {
+        var exitErr *exec.ExitError
+        if errors.As(err, &exitErr) {
+            // compiler ran and rejected the code, stderr has the reason
+            return fmt.Errorf("compile error: %s", stderr), nil
+        }
+        // err wasn't an ExitError at all, e.g. couldn't even start the container, mount failed, etc — that's IE
+        return nil, fmt.Errorf("infra error running compiler: %w", err)
+    }
+    return nil, nil
 }

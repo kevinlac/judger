@@ -242,9 +242,12 @@ func TestSetSubmissionVerdict(t *testing.T) {
 	if sub.ProcessingStatus != StatusJudged {
 		t.Errorf("ProcessingStatus = %q, want %q", sub.ProcessingStatus, StatusJudged)
 	}
-	if !sub.Verdict.Valid || sub.Verdict.String != VerdictAC {
-		t.Errorf("Verdict = %+v, want %q", sub.Verdict, VerdictAC)
-	}
+	if sub.Verdict == nil {
+        t.Fatalf("Verdict should be set once judged")
+    }
+    if *sub.Verdict != VerdictAC {
+        t.Errorf("Verdict = %q, want %q", *sub.Verdict, VerdictAC)
+    }
 	if !sub.JudgedAt.Valid {
 		t.Errorf("JudgedAt should be set once judged")
 	}

@@ -24,5 +24,5 @@ CREATE TABLE IF NOT EXISTS submissions (
     CONSTRAINT fk_problem_id FOREIGN KEY (problem_id) REFERENCES problems(id) ON DELETE RESTRICT,
     CONSTRAINT chk_language CHECK (lang IN ('C++', 'C', 'Java', 'Python')),
     CONSTRAINT chk_sub_status CHECK (processing_status IN ('queued', 'running', 'judged')),
-    CONSTRAINT chk_sub_verdict CHECK (verdict IN ('AC', 'WA', 'TLE', 'MLE', 'RTE', 'IE'))
+    CONSTRAINT chk_sub_verdict CHECK (verdict IN ('AC', 'WA', 'TLE', 'MLE', 'RTE', 'IE', 'CE'))
 );

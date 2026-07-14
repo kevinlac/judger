@@ -8,27 +8,22 @@ import (
 	"time"
 )
 
-const (
-	ProbC = "C"
-	ProbCPP = "C++"
-	ProbPython = "Python"
-	ProbJava = "Java"
-)
+type ProblemType string
 
 const (
-	ProbTypeStandard = "standard"
-	ProbTypeCustom = "custom"
+    ProblemTypeStandard ProblemType = "standard"
+    ProblemTypeCustom   ProblemType = "custom"
 )
 
 type Problem struct {
 	ID            string
 	TimeLimitMs   int
 	MemoryLimitMB int
-	ProblemType   string
+	ProblemType   ProblemType
 	CreatedAt     time.Time
 }
 
-func (s *Store) InsertProblem(id string, timeLimit int, memoryLimit int, problemType string) error {
+func (s *Store) InsertProblem(id string, timeLimit int, memoryLimit int, problemType ProblemType) error {
 	query := `
     INSERT INTO problems (id, time_limit_ms, memory_limit_mb, problem_type)
     VALUES ($1, $2, $3, $4);`
@@ -37,7 +32,7 @@ func (s *Store) InsertProblem(id string, timeLimit int, memoryLimit int, problem
 }
 
 // insert or update if exists already
-func (s *Store) UpsertProblem(ctx context.Context, id string, timeLimit int, memoryLimit int, problemType string) error {
+func (s *Store) UpsertProblem(ctx context.Context, id string, timeLimit int, memoryLimit int, problemType ProblemType) error {
     query := `
     INSERT INTO problems (id, time_limit_ms, memory_limit_mb, problem_type)
     VALUES ($1, $2, $3, $4)

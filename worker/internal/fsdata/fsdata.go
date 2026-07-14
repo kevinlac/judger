@@ -3,6 +3,7 @@ package fsdata
 import (
 	"fmt"
 	"path/filepath"
+	"worker/internal/db"
 
 	"github.com/google/uuid"
 )
@@ -53,7 +54,7 @@ func SubmissionMetaPath(dataDir string, id uuid.UUID) string {
 }
 
 // data/submissions/<id>/<source filename for lang>
-func SubmissionSourcePath(dataDir string, id uuid.UUID, lang string) (string, error) {
+func SubmissionSourcePath(dataDir string, id uuid.UUID, lang db.Lang) (string, error) {
 	filename, err := SourceFilename(lang)
 	if err != nil {
 		return "", err
@@ -62,7 +63,7 @@ func SubmissionSourcePath(dataDir string, id uuid.UUID, lang string) (string, er
 }
 
 // matches the chk_language constraint in the submissions table
-func SourceFilename(lang string) (string, error) {
+func SourceFilename(lang db.Lang) (string, error) {
 	switch lang {
 	case "C++":
 		return "main.cpp", nil

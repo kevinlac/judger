@@ -10,35 +10,49 @@ import (
 	"github.com/google/uuid"
 )
 
+type Lang string
+
+const (
+    LangC      Lang = "C"
+    LangCPP    Lang = "C++"
+    LangPython Lang = "Python"
+    LangJava   Lang = "Java"
+)
+
+type SubStatus string
+
 // chk_sub_status constraint
 const (
-	StatusQueued  = "queued"
-	StatusRunning = "running"
-	StatusJudged  = "judged"
+    StatusQueued  SubStatus = "queued"
+    StatusRunning SubStatus = "running"
+    StatusJudged  SubStatus = "judged"
 )
+
+type Verdict string
 
 // chk_sub_verdict constraint
 const (
-	VerdictAC  = "AC"
-	VerdictWA  = "WA"
-	VerdictTLE = "TLE"
-	VerdictMLE = "MLE"
-	VerdictRTE = "RTE"
-	VerdictIE  = "IE"
+    VerdictAC  Verdict = "AC"
+    VerdictWA  Verdict = "WA"
+    VerdictTLE Verdict = "TLE"
+    VerdictMLE Verdict = "MLE"
+    VerdictRTE Verdict = "RTE"
+    VerdictIE  Verdict = "IE"
+	VerdictCE  Verdict = "CE"
 )
 
 type Submission struct {
 	ID               uuid.UUID
 	ProblemID        string
-	Lang             string
-	ProcessingStatus string
-	Verdict          sql.NullString
+	Lang             Lang
+	ProcessingStatus SubStatus
+	Verdict          *Verdict // verdict is not determined till judged
 	SubmittedAt      time.Time
 	JudgedAt         sql.NullTime
 }
 
 // creates a new submission row with status queued
-func (s *Store) InsertSubmission(id uuid.UUID, problemID string, lang string) error {
+func (s *Store) InsertSubmission(id uuid.UUID, problemID string, lang Lang) error {
 	query := `
     INSERT INTO submissions (id, problem_id, lang, processing_status)
     VALUES ($1, $2, $3, 'queued');`
@@ -48,7 +62,7 @@ func (s *Store) InsertSubmission(id uuid.UUID, problemID string, lang string) er
 
 // inserts a submission with status queued if no
 // row with that id exists yet, and is a no-op otherwise.
-func (s *Store) InsertSubmissionIfAbsent(ctx context.Context, id uuid.UUID, problemID string, lang string) (bool, error) {
+func (s *Store) InsertSubmissionIfAbsent(ctx context.Context, id uuid.UUID, problemID string, lang Lang) (bool, error) {
     query := `
     INSERT INTO submissions (id, problem_id, lang, processing_status)
     VALUES ($1, $2, $3, 'queued')
@@ -129,7 +143,7 @@ func (s *Store) ListSubmissionsByProblem(ctx context.Context, problemID string) 
 
 
 // update a submission's processing_status (e.g. queued -> running)
-func (s *Store) UpdateSubmissionStatus(ctx context.Context, id uuid.UUID, status string) error {
+func (s *Store) UpdateSubmissionStatus(ctx context.Context, id uuid.UUID, status SubStatus) error {
 	query := `
     UPDATE submissions
     SET processing_status = $2
@@ -142,7 +156,7 @@ func (s *Store) UpdateSubmissionStatus(ctx context.Context, id uuid.UUID, status
 }
 
 // adds final verdict for a submission, marking it judged and stamping judged_at to now
-func (s *Store) SetSubmissionVerdict(ctx context.Context, id uuid.UUID, verdict string) error {
+func (s *Store) SetSubmissionVerdict(ctx context.Context, id uuid.UUID, verdict Verdict) error {
 	query := `
     UPDATE submissions
     SET verdict = $2,
