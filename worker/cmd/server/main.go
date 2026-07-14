@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"time"
 	"worker/internal/config"
 	"worker/internal/db"
 	"worker/internal/judge"
@@ -26,15 +25,8 @@ func main() {
 	// should only return our one submission from example data
 	allSubmissions, err := store.ListSubmissionsByProblem(context.Background(), "sum-two-numbers")
 	fmt.Printf("No. of submissions for sum-two-numbers: %d\n", len(allSubmissions))
-
-	err = judge.Compile(context.Background(), cfg, allSubmissions[0])
-	if err != nil {
-		fmt.Printf("Error compiling!: %v\n", err)
-	} else {
-		fmt.Printf("Compiled submission successfully.\n") 
-	}
-
-	for {
-		time.Sleep(1 * time.Second)
+	
+	for _, sub := range allSubmissions {
+		judge.JudgeSubmission(context.Background(), store, cfg, sub.ID)
 	}
 }

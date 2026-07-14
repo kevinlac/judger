@@ -92,7 +92,7 @@ func syncProblems(ctx context.Context, store *db.Store, dataDir string, result *
 			continue
 		}
 
-		if err := store.UpsertProblem(ctx, meta.ID, meta.TimeLimitMs, meta.MemoryLimitMB, meta.ProblemType); err != nil {
+		if err := store.UpsertProblem(ctx, meta.ID, meta.TimeLimitMs, meta.MemoryLimitMB, db.ProblemType(meta.ProblemType)); err != nil {
 			result.Errors = append(result.Errors, fmt.Errorf("problem %s: %w", dirName, err))
 			continue
 		}
@@ -138,12 +138,12 @@ func syncSubmissions(ctx context.Context, store *db.Store, dataDir string, resul
 			continue
 		}
 
-		if _, err := fsdata.SubmissionSourcePath(dataDir, id, meta.Lang); err != nil {
+		if _, err := fsdata.SubmissionSourcePath(dataDir, id, db.Lang(meta.Lang)); err != nil {
 			result.Errors = append(result.Errors, fmt.Errorf("submission %s: %w", dirName, err))
 			continue
 		}
 
-		inserted, err := store.InsertSubmissionIfAbsent(ctx, id, meta.ProblemID, meta.Lang)
+		inserted, err := store.InsertSubmissionIfAbsent(ctx, id, meta.ProblemID, db.Lang(meta.Lang))
 		if err != nil {
 			result.Errors = append(result.Errors, fmt.Errorf("submission %s: %w", dirName, err))
 			continue

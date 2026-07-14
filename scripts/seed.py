@@ -47,6 +47,19 @@ SUBMISSIONS = [
         "    cout << a + b << endl;\n"
         "    return 0;\n"
         "}\n",
+    ),
+    (
+        "sum-two-numbers",
+        "C++",
+        "main.cpp",
+        "#include <bits/stdc++.h>\n"
+        "using namespace std;\n"
+        "int main() {\n"
+        "    int a, b\n"          # <- missing semicolon here
+        "    cin >> a >> b;\n"
+        "    cout << a + b << endl;\n"
+        "    return 0;\n"
+        "}\n",
     )
 ]
 
